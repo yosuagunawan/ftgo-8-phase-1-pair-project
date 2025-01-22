@@ -59,5 +59,60 @@ func handleViewOrders(db *sql.DB) {
 }
 
 func handlePlaceOrder(db *sql.DB) {
+	// handleListGames(db)
 
+	var gameID, quantity int
+	fmt.Print("\nEnter game ID: ")
+	fmt.Scan(&gameID)
+	fmt.Print("Enter quantity: ")
+	fmt.Scan(&quantity)
+
+	tx, err := db.Begin()
+	if err != nil {
+		color.Red("Error starting transaction:", err)
+		return
+	}
+
+	var stock int
+	var price float64
+	err = tx.QueryRow("SELECT stock, price FROM games WHERE id =$1", gameID).
+		Scan(&stock, &price)
+	if err != nil {
+		tx.Rollback()
+		color.Red("Error getting game details:", err)
+		return
+	}
+
+	if stock < quantity {
+		tx.Rollback()
+		color.Red("Insufficient stock! Available: %d", stock)
+		return
+	}
+
+	total := price * float64(quantity)
+	_, err = tx.Exec(`
+        INSERT INTO orders (game_id, quantity, total) 
+        VALUES ($1, $2, $3)`,
+		gameID, quantity, total)
+	if err != nil {
+		tx.Rollback()
+		color.Red("Error creating order:", err)
+		return
+	}
+
+	_, err = tx.Exec("UPDATE games SET stock = stock - $1 WHERE id = $2",
+		quantity, gameID)
+	if err != nil {
+		tx.Rollback()
+		color.Red("Error updating stock:", err)
+		return
+	}
+
+	err = tx.Commit()
+	if err != nil {
+		color.Red("Error completing order:", err)
+		return
+	}
+
+	color.Green("Order placed successfully!")
 }
