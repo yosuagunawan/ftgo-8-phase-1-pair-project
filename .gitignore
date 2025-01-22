@@ -1,0 +1,14 @@
+# Environment variables
+.env
+
+# Binary files
+bin/
+games-store-cli
+
+# IDE specific files
+.idea/
+.vscode/
+
+# OS specific files
+.DS_Store
+*.swp

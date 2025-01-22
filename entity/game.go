@@ -5,6 +5,7 @@ type Game struct {
 	Title       string  `json:"title"`
 	Price       float64 `json:"price"`
 	Stock       int     `json:"stock"`
-	Genre       string  `json:"genre"`
 	ReleaseDate string  `json:"release_date"`
+	CreatedAt   string  `json:"created_at"`
+	CategoryID  int     `json:"category_id"`
 }
