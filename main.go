@@ -74,7 +74,7 @@ func getUserChoice() int {
 func handleUserChoice(choice int) {
 	switch choice {
 	case 1:
-		fmt.Println("User")
+		handler.HandleUserMenu(db)
 	case 2:
 		fmt.Println("Games")
 	case 3:
