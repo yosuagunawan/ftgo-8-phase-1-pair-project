@@ -5,15 +5,18 @@ import (
 	"fmt"
 	"ftgo-8-phase-1-pair-project/config"
 	"ftgo-8-phase-1-pair-project/database"
+	"ftgo-8-phase-1-pair-project/entity"
 	"ftgo-8-phase-1-pair-project/handler"
 	"log"
 	"os"
 
 	"github.com/fatih/color"
-	_ "github.com/lib/pq"
 )
 
-var db *sql.DB
+var (
+	db          *sql.DB
+	currentUser *entity.User
+)
 
 func main() {
 	cfg, err := config.LoadConfig()
@@ -28,40 +31,21 @@ func main() {
 	defer db.Close()
 
 	for {
-		showMainMenu()
+		if currentUser == nil {
+			showAuthMenu()
+		} else {
+			showMainMenu()
+		}
 		choice := getUserChoice()
-		handleUserChoice(choice)
+		handleChoice(choice)
 	}
-	// rows, err := db.Query("SELECT * FROM games")
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// defer rows.Close()
-
-	// for rows.Next() {
-	// 	var id int
-	// 	var title string
-	// 	var price float64
-	// 	var stock int
-	// 	var releaseDate string
-	// 	var created_at string
-	// 	var categoryID int
-	// 	err = rows.Scan(&id, &title, &price, &stock, &releaseDate, &created_at, &categoryID)
-	// 	if err != nil {
-	// 		panic(err)
-	// 	}
-
-	// 	fmt.Println(title, price)
-	// }
 }
 
-func showMainMenu() {
+func showAuthMenu() {
 	color.Cyan("\n=== Games Store CLI ===")
-	fmt.Println("1. User Management")
-	fmt.Println("2. Game Management")
-	fmt.Println("3. Order Management")
-	fmt.Println("4. Reports")
-	fmt.Println("5. Exit")
+	fmt.Println("1. Register")
+	fmt.Println("2. Login")
+	fmt.Println("3. Exit")
 }
 
 func getUserChoice() int {
@@ -71,19 +55,61 @@ func getUserChoice() int {
 	return choice
 }
 
-func handleUserChoice(choice int) {
+func showMainMenu() {
+	color.Cyan("\n=== Games Store CLI ===")
+	color.Yellow("Logged in as: %s (%s)", currentUser.Email, currentUser.Role)
+
+	if currentUser.Role == "admin" {
+		fmt.Println("1. Print Admin Email")
+		fmt.Println("2. Logout")
+		fmt.Println("3. Exit")
+	} else {
+		fmt.Println("1. Print Customer Email")
+		fmt.Println("2. Logout")
+		fmt.Println("3. Exit")
+	}
+}
+
+func handleChoice(choice int) {
+	if currentUser == nil {
+		switch choice {
+		case 1:
+			handler.HandleUserRegistration(db)
+		case 2:
+			if user := handler.HandleUserLogin(db); user != nil {
+				currentUser = user
+			}
+		case 3:
+			os.Exit(0)
+		}
+		return
+	}
+
+	if currentUser.Role == "admin" {
+		handleAdminChoice(choice)
+	} else {
+		handleCustomerChoice(choice)
+	}
+}
+
+func handleAdminChoice(choice int) {
 	switch choice {
 	case 1:
-		handler.HandleUserMenu(db)
+		color.Magenta("Email: %s", currentUser.Email)
 	case 2:
-		fmt.Println("Games")
+		currentUser = nil
 	case 3:
-		handler.HandleOrderMenu(db)
-	case 4:
-		fmt.Println("Reports")
-	case 5:
 		os.Exit(0)
-	default:
-		color.Red("Invalid choice!")
+	}
+}
+
+func handleCustomerChoice(choice int) {
+	switch choice {
+	case 1:
+		color.Magenta("Email: %s", currentUser.Email)
+	case 2:
+		currentUser = nil
+	case 3:
+		os.Exit(0)
 	}
 }
