@@ -65,8 +65,9 @@ func showMainMenu() {
 		fmt.Println("3. Exit")
 	} else {
 		fmt.Println("1. Print Customer Email")
-		fmt.Println("2. Logout")
-		fmt.Println("3. Exit")
+		fmt.Println("2. My Orders")
+		fmt.Println("3. Logout")
+		fmt.Println("4. Exit")
 	}
 }
 
@@ -108,8 +109,10 @@ func handleCustomerChoice(choice int) {
 	case 1:
 		color.Magenta("Email: %s", currentUser.Email)
 	case 2:
-		currentUser = nil
+		handler.HandleCustomerOrderMenu(db, currentUser.ID)
 	case 3:
+		currentUser = nil
+	case 4:
 		os.Exit(0)
 	}
 }
