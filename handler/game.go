@@ -54,7 +54,7 @@ func handleAddGame(db *sql.DB) {
 	var stock, categoryID int
 
 	fmt.Print("Enter game title: ")
-	fmt.Scan(&title)
+	fmt.Scanln(&title)
 	fmt.Print("Enter game price: ")
 	fmt.Scan(&price)
 	fmt.Print("Enter game stock: ")

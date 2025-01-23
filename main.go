@@ -64,8 +64,8 @@ func showMainMenu() {
 		fmt.Println("2. Logout")
 		fmt.Println("3. Exit")
 	} else {
-		fmt.Println("1. Print Customer Email")
-		fmt.Println("2. Browse Games")
+		fmt.Println("1. Browse Games")
+		fmt.Println("2. My Orders")
 		fmt.Println("3. Logout")
 		fmt.Println("4. Exit")
 	}
