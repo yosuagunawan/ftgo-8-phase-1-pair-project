@@ -119,8 +119,10 @@ func handleUpdateGame(db *sql.DB) {
 	var price float64
 	var stock, categoryID int
 
-	fmt.Print("Enter game ID to update: ")
-	fmt.Scan(&id)
+	scanner := bufio.NewReader(os.Stdin)
+	fmt.Print("Enter old game title: ")
+	title, _ = scanner.ReadString('\n') // Baca input dengan scanner
+	title = strings.TrimSpace(title)
 
 	fmt.Print("Enter new title: ")
 	fmt.Scan(&title)
