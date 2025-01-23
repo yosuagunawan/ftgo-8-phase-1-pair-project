@@ -7,11 +7,11 @@ import (
 	"github.com/fatih/color"
 )
 
-func HandleOrderMenu(db *sql.DB) {
+func HandleCustomerOrderMenu(db *sql.DB, userID int) {
 	for {
-		color.Cyan("\n=== Order Management ===")
-		fmt.Println("1. View Orders")
-		fmt.Println("2. Place Order")
+		color.Cyan("\n=== My Orders ===")
+		fmt.Println("1. Place Order")
+		fmt.Println("2. View My Orders")
 		fmt.Println("3. Back")
 
 		var choice int
@@ -20,45 +20,16 @@ func HandleOrderMenu(db *sql.DB) {
 
 		switch choice {
 		case 1:
-			handleViewOrders(db)
+			handlePlaceOrder(db, userID)
 		case 2:
-			handlePlaceOrder(db)
+			handleViewCustomerOrders(db, userID)
 		case 3:
 			return
-		default:
-			color.Red("Invalid choice!")
 		}
 	}
 }
 
-func handleViewOrders(db *sql.DB) {
-	rows, err := db.Query(`
-        SELECT o.id, g.title, o.quantity, o.total, o.created_at
-        FROM orders o
-        JOIN games g ON o.game_id = g.id
-        ORDER BY o.created_at DESC`)
-	if err != nil {
-		color.Red("Error fetching orders:", err)
-		return
-	}
-	defer rows.Close()
-
-	color.Yellow("\nOrder History:")
-	fmt.Printf("%-5s %-30s %-10s %-10s %-20s\n",
-		"ID", "Game", "Quantity", "Total", "Date")
-
-	for rows.Next() {
-		var id, quantity int
-		var title, createdAt string
-		var total float64
-
-		rows.Scan(&id, &title, &quantity, &total, &createdAt)
-		fmt.Printf("%-5d %-30s %-10d $%-9.2f %-20s\n",
-			id, title, quantity, total, createdAt)
-	}
-}
-
-func handlePlaceOrder(db *sql.DB) {
+func handlePlaceOrder(db *sql.DB, userID int) {
 	// handleListGames(db)
 
 	var gameID, quantity int
@@ -75,7 +46,7 @@ func handlePlaceOrder(db *sql.DB) {
 
 	var stock int
 	var price float64
-	err = tx.QueryRow("SELECT stock, price FROM games WHERE id =$1", gameID).
+	err = tx.QueryRow("SELECT stock, price FROM games WHERE id = $1", gameID).
 		Scan(&stock, &price)
 	if err != nil {
 		tx.Rollback()
@@ -91,9 +62,9 @@ func handlePlaceOrder(db *sql.DB) {
 
 	total := price * float64(quantity)
 	_, err = tx.Exec(`
-        INSERT INTO orders (game_id, quantity, total) 
-        VALUES ($1, $2, $3)`,
-		gameID, quantity, total)
+        INSERT INTO orders (user_id, game_id, quantity, total) 
+        VALUES ($1, $2, $3, $4)`,
+		userID, gameID, quantity, total)
 	if err != nil {
 		tx.Rollback()
 		color.Red("Error creating order:", err)
@@ -115,4 +86,32 @@ func handlePlaceOrder(db *sql.DB) {
 	}
 
 	color.Green("Order placed successfully!")
+}
+
+func handleViewCustomerOrders(db *sql.DB, userID int) {
+	rows, err := db.Query(`
+        SELECT o.id, g.title, o.quantity, o.total, o.created_at
+        FROM orders o
+        JOIN games g ON o.game_id = g.id
+        WHERE o.user_id = $1
+        ORDER BY o.created_at DESC`, userID)
+	if err != nil {
+		color.Red("Error fetching orders:", err)
+		return
+	}
+	defer rows.Close()
+
+	color.Yellow("\nMy Order History:")
+	fmt.Printf("%-5s %-30s %-10s %-10s %-20s\n",
+		"ID", "Game", "Quantity", "Total", "Date")
+
+	for rows.Next() {
+		var id, quantity int
+		var title, createdAt string
+		var total float64
+
+		rows.Scan(&id, &title, &quantity, &total, &createdAt)
+		fmt.Printf("%-5d %-30s %-10d $%-9.2f %-20s\n",
+			id, title, quantity, total, createdAt)
+	}
 }
