@@ -123,7 +123,20 @@ func handleUpdateGame(db *sql.DB) {
 
 	fmt.Print("Enter game ID to update: ")
 	fmt.Scan(&id)
-	//
+
+	// Check if the ID exists in the database
+	var exists bool
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM games WHERE id = $1)", id).Scan(&exists)
+	if err != nil {
+		color.Red("Error checking game ID:", err)
+		return
+	}
+
+	if !exists {
+		color.Red("Error: Game ID %d does not exist in the database.", id)
+		return
+	}
+
 	scanner := bufio.NewReader(os.Stdin)
 	scanner.ReadString('\n')
 	fmt.Print("Enter new title: ")
@@ -143,7 +156,7 @@ func handleUpdateGame(db *sql.DB) {
 		SET title = $1, price = $2, stock = $3, category_id = $4, release_date = $5 
 		WHERE id = $6`
 
-	_, err := db.Exec(query, title, price, stock, categoryID, releaseDate, id)
+	_, err = db.Exec(query, title, price, stock, categoryID, releaseDate, id)
 	if err != nil {
 		color.Red("Error updating game:", err)
 		return
