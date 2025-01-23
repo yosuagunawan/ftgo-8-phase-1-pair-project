@@ -1,8 +1,11 @@
 package handler
 
 import (
+	"bufio"
 	"database/sql"
 	"fmt"
+	"os"
+	"strings"
 	"time"
 
 	"github.com/fatih/color"
@@ -53,8 +56,12 @@ func handleAddGame(db *sql.DB) {
 	var price float64
 	var stock, categoryID int
 
+	scanner := bufio.NewReader(os.Stdin)
+	scanner.ReadString('\n')
 	fmt.Print("Enter game title: ")
-	fmt.Scanln(&title)
+	title, _ = scanner.ReadString('\n')
+	title = strings.TrimSpace(title)
+
 	fmt.Print("Enter game price: ")
 	fmt.Scan(&price)
 	fmt.Print("Enter game stock: ")
