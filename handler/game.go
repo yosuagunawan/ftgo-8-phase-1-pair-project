@@ -8,21 +8,48 @@ import (
 	"github.com/fatih/color"
 )
 
-// Game represents the structure of a game
 type Game struct {
 	ID          int
 	Title       string
 	Price       float64
 	Stock       int
-	Genre       string
 	CategoryID  int
 	CreatedAt   time.Time
 	ReleaseDate string
 }
 
-// AddGame manually adds a new game to the database
-func AddGame(db *sql.DB) {
-	var title, genre, releaseDate string
+func HandleGameMenu(db *sql.DB) {
+	for {
+		color.Cyan("\n=== Game Management ===")
+		fmt.Println("1. Add Game")
+		fmt.Println("2. List Games")
+		fmt.Println("3. Update Game")
+		fmt.Println("4. Delete Game")
+		fmt.Println("5. Back")
+
+		var choice int
+		fmt.Print("\nEnter your choice: ")
+		fmt.Scan(&choice)
+
+		switch choice {
+		case 1:
+			handleAddGame(db)
+		case 2:
+			HandleListGames(db)
+		case 3:
+			handleUpdateGame(db)
+		case 4:
+			handleDeleteGame(db)
+		case 5:
+			return
+		default:
+			color.Red("Invalid choice!")
+		}
+	}
+}
+
+func handleAddGame(db *sql.DB) {
+	var title, releaseDate string
 	var price float64
 	var stock, categoryID int
 
@@ -32,20 +59,17 @@ func AddGame(db *sql.DB) {
 	fmt.Scan(&price)
 	fmt.Print("Enter game stock: ")
 	fmt.Scan(&stock)
-	fmt.Print("Enter game genre: ")
-	fmt.Scan(&genre)
 	fmt.Print("Enter category ID: ")
 	fmt.Scan(&categoryID)
 	fmt.Print("Enter release date (YYYY-MM-DD): ")
 	fmt.Scan(&releaseDate)
-
 	createdAt := time.Now()
 
 	query := `
-		INSERT INTO games (title, price, stock, genre, category_id, release_date, created_at)
-		VALUES ($1, $2, $3, $4, $5, $6, $7)`
+		INSERT INTO games (title, price, stock, category_id, release_date, created_at)
+		VALUES ($1, $2, $3, $4, $5, $6)`
 
-	_, err := db.Exec(query, title, price, stock, genre, categoryID, releaseDate, createdAt)
+	_, err := db.Exec(query, title, price, stock, categoryID, releaseDate, createdAt)
 	if err != nil {
 		color.Red("Error adding game:", err)
 		return
@@ -54,10 +78,9 @@ func AddGame(db *sql.DB) {
 	color.Green("Game added successfully!")
 }
 
-// ListGames manually retrieves all games and displays them
-func ListGames(db *sql.DB) {
+func HandleListGames(db *sql.DB) {
 	query := `
-		SELECT id, title, price, stock, genre, category_id, release_date, created_at 
+		SELECT id, title, price, stock, category_id, release_date 
 		FROM games ORDER BY id`
 
 	rows, err := db.Query(query)
@@ -68,25 +91,24 @@ func ListGames(db *sql.DB) {
 	defer rows.Close()
 
 	color.Cyan("\n=== Available Games ===")
-	fmt.Printf("%-5s %-30s %-10s %-10s %-20s %-15s %-20s %-20s\n",
-		"ID", "Title", "Price", "Stock", "Genre", "Category ID", "Release Date", "Created At")
+	fmt.Printf("%-5s %-30s %-10s %-10s %-15s %-20s\n",
+		"ID", "Title", "Price", "Stock", "Category ID", "Release Date")
 
 	for rows.Next() {
 		var game Game
-		err := rows.Scan(&game.ID, &game.Title, &game.Price, &game.Stock, &game.Genre, &game.CategoryID, &game.ReleaseDate, &game.CreatedAt)
+		err := rows.Scan(&game.ID, &game.Title, &game.Price, &game.Stock, &game.CategoryID, &game.ReleaseDate)
 		if err != nil {
 			color.Red("Error reading game data:", err)
 			continue
 		}
-		fmt.Printf("%-5d %-30s $%-9.2f %-10d %-20s %-15d %-20s %-20s\n",
-			game.ID, game.Title, game.Price, game.Stock, game.Genre, game.CategoryID, game.ReleaseDate, game.CreatedAt.Format("2006-01-02 15:04:05"))
+		fmt.Printf("%-5d %-30s $%-9.2f %-10d %-15d %-20s\n",
+			game.ID, game.Title, game.Price, game.Stock, game.CategoryID, game.ReleaseDate)
 	}
 }
 
-// UpdateGame manually updates a game's details
-func UpdateGame(db *sql.DB) {
+func handleUpdateGame(db *sql.DB) {
 	var id int
-	var title, genre, releaseDate string
+	var title, releaseDate string
 	var price float64
 	var stock, categoryID int
 
@@ -99,8 +121,6 @@ func UpdateGame(db *sql.DB) {
 	fmt.Scan(&price)
 	fmt.Print("Enter new stock: ")
 	fmt.Scan(&stock)
-	fmt.Print("Enter new genre: ")
-	fmt.Scan(&genre)
 	fmt.Print("Enter new category ID: ")
 	fmt.Scan(&categoryID)
 	fmt.Print("Enter new release date (YYYY-MM-DD): ")
@@ -108,10 +128,10 @@ func UpdateGame(db *sql.DB) {
 
 	query := `
 		UPDATE games 
-		SET title = $1, price = $2, stock = $3, genre = $4, category_id = $5, release_date = $6 
-		WHERE id = $7`
+		SET title = $1, price = $2, stock = $3, category_id = $4, release_date = $5 
+		WHERE id = $6`
 
-	_, err := db.Exec(query, title, price, stock, genre, categoryID, releaseDate, id)
+	_, err := db.Exec(query, title, price, stock, categoryID, releaseDate, id)
 	if err != nil {
 		color.Red("Error updating game:", err)
 		return
@@ -120,8 +140,7 @@ func UpdateGame(db *sql.DB) {
 	color.Green("Game updated successfully!")
 }
 
-// DeleteGame manually deletes a game
-func DeleteGame(db *sql.DB) {
+func handleDeleteGame(db *sql.DB) {
 	var id int
 	fmt.Print("Enter game ID to delete: ")
 	fmt.Scan(&id)

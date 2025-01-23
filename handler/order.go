@@ -30,7 +30,7 @@ func HandleCustomerOrderMenu(db *sql.DB, userID int) {
 }
 
 func handlePlaceOrder(db *sql.DB, userID int) {
-	// handleListGames(db)
+	HandleListGames(db)
 
 	var gameID, quantity int
 	fmt.Print("\nEnter game ID: ")

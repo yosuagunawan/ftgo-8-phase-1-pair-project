@@ -60,12 +60,12 @@ func showMainMenu() {
 	color.Yellow("Logged in as: %s (%s)", currentUser.Email, currentUser.Role)
 
 	if currentUser.Role == "admin" {
-		fmt.Println("1. Print Admin Email")
+		fmt.Println("1. Game Management")
 		fmt.Println("2. Logout")
 		fmt.Println("3. Exit")
 	} else {
 		fmt.Println("1. Print Customer Email")
-		fmt.Println("2. My Orders")
+		fmt.Println("2. Browse Games")
 		fmt.Println("3. Logout")
 		fmt.Println("4. Exit")
 	}
@@ -96,7 +96,7 @@ func handleChoice(choice int) {
 func handleAdminChoice(choice int) {
 	switch choice {
 	case 1:
-		color.Magenta("Email: %s", currentUser.Email)
+		handler.HandleGameMenu(db)
 	case 2:
 		currentUser = nil
 	case 3:
@@ -107,7 +107,7 @@ func handleAdminChoice(choice int) {
 func handleCustomerChoice(choice int) {
 	switch choice {
 	case 1:
-		color.Magenta("Email: %s", currentUser.Email)
+		handler.HandleListGames(db)
 	case 2:
 		handler.HandleCustomerOrderMenu(db, currentUser.ID)
 	case 3:
