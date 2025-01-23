@@ -35,6 +35,19 @@ func handlePlaceOrder(db *sql.DB, userID int) {
 	var gameID, quantity int
 	fmt.Print("\nEnter game ID: ")
 	fmt.Scan(&gameID)
+
+	var gameExists bool
+	err := db.QueryRow("SELECT EXISTS(SELECT 1 FROM games WHERE id = $1)", gameID).Scan(&gameExists)
+	if err != nil {
+		color.Red("Error checking game existence:", err)
+		return
+	}
+
+	if !gameExists {
+		color.Red("Error: Game with ID %d does not exist!", gameID)
+		return
+	}
+
 	fmt.Print("Enter quantity: ")
 	fmt.Scan(&quantity)
 
