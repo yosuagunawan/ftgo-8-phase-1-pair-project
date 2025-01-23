@@ -123,7 +123,7 @@ func handleUpdateGame(db *sql.DB) {
 
 	fmt.Print("Enter game ID to update: ")
 	fmt.Scan(&id)
-
+	//
 	scanner := bufio.NewReader(os.Stdin)
 	scanner.ReadString('\n')
 	fmt.Print("Enter new title: ")
