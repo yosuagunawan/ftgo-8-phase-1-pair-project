@@ -1,13 +1,55 @@
 package handler
 
 import (
+	"bufio"
 	"database/sql"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
 )
 
 // ReportHandler struct untuk menyimpan koneksi database
 type ReportHandler struct {
-	DB *sql.DB
+	DB sql.DB
+}
+
+func (hReportHandler) ShowReportsMenu() {
+	reader := bufio.NewReader(os.Stdin) // Reader hanya dibuat sekali di awal
+	for {
+		// Cetak menu
+		fmt.Println("Reports Menu:")
+		fmt.Println("1. Low Stock Alert Report")
+		fmt.Println("2. Customer Purchase Frequency")
+		fmt.Println("3. Sales Performance by Category")
+		fmt.Println("4. Recent Game Releases Performance")
+		fmt.Println("5. Average Order Value by Month")
+		fmt.Println("6. Exit")
+		fmt.Print("Enter your choice: ")
+
+		// Baca input pengguna
+		input, err := reader.ReadString('\n')
+		if err != nil {
+			fmt.Println("Error reading input. Please try again.")
+			continue
+		}
+
+		// Bersihkan input dari spasi dan newline
+		input = strings.TrimSpace(input)
+
+		// Tangani input kosong
+		if input == "" {
+			fmt.Println("Input cannot be empty. Please enter a number between 1 and 6.")
+			continue
+		}
+
+		// Konversi input ke integer
+		_, err = strconv.Atoi(input)
+		if err != nil {
+			fmt.Println("Invalid input. Please enter a number between 1 and 6.")
+			continue
+		}
+	}
 }
 
 // LowStockAlertReportCLI menangani laporan stok rendah untuk CLI

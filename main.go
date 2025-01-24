@@ -103,7 +103,7 @@ func handleAdminChoice(choice int) {
 	case 1:
 		handler.HandleGameMenu(db)
 	case 2:
-		showReportsMenu() // Tambahkan opsi untuk Reports
+		reportHandler.ShowReportsMenu()
 	case 3:
 		currentUser = nil
 	case 4:
@@ -124,16 +124,15 @@ func handleCustomerChoice(choice int) {
 	}
 }
 
-func showReportsMenu() {
-	color.Cyan("\n=== Reports Menu ===")
-	fmt.Println("1. Low Stock Alert Report")
-	fmt.Println("2. Customer Purchase Frequency")
-	fmt.Println("3. Sales Performance by Category")
-	fmt.Println("4. Recent Game Releases Performance")
-	fmt.Println("5. Average Order Value by Month")
-	fmt.Println("6. Back to Main Menu")
+func Reportmenu(choice int) {
+	db, err := sql.Open("postgres", "your-dsn-here") // Pastikan DSN Anda benar
+	if err != nil {
+		log.Fatalf("Failed to connect to the database: %v", err)
+	}
+	defer db.Close()
 
-	choice := getUserChoice()
+	reportHandler := handler.ReportHandler{DB: db}
+
 	switch choice {
 	case 1:
 		reportHandler.LowStockAlertReportCLI()
@@ -145,9 +144,7 @@ func showReportsMenu() {
 		reportHandler.RecentGameReleasesPerformanceCLI()
 	case 5:
 		reportHandler.AverageOrderValueByMonthCLI()
-	case 6:
-		return
 	default:
-		fmt.Println("Invalid choice, please try again.")
+		fmt.Println("Invalid choice. Please enter a number between 1 and 5.")
 	}
 }
