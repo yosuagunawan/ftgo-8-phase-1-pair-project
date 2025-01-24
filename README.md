@@ -1,7 +1,7 @@
 # Game Store CLI
 
 ## Project Structure
-
+```
 ftgo-8-phase-1-pair-project/
 ├── cli/
 ├── config/
@@ -31,10 +31,10 @@ ftgo-8-phase-1-pair-project/
 ├── go.sum
 ├── main.go
 └── schema.sql
-
+```
 ## Project Overview
 
-Game Store CLI is a command-line interface (CLI) application for managing a game store, built with Go and PostgreSQL. The application provides robust functionality for both customers and administrators, allowing users to browse games, place orders, and generate various reports.
+Game Store CLI is a command-line interface (CLI) application for managing a game store, built with Go and PostgreSQL. The application provides robust functionality for both customers and administrators, allowing customers to browse games & place orders and administrators to manage games and generate various reports.
 
 ## Key Features
 
