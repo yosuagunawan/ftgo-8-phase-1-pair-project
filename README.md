@@ -5,32 +5,59 @@
 ftgo-8-phase-1-pair-project/
 
 ├── cli/
+
 ├── config/
+
 │   └── config.go
+
 ├── database/
+
 │   └── postgres.go
+
 ├── docs/
+
 │   └── games-erd.go
+
 ├── entity/
+
 │   ├── category.go
+
 │   ├── game.go
+
 │   ├── order.go
+
 │   └── user.go
+
 ├── handler/
+
 │   ├── game_test.go
+
 │   ├── game.go
+
 │   ├── order_test.go
+
 │   ├── order.go
+
 │   ├── report_test.go
+
 │   ├── report.go
+
 │   ├── user_test.go
+
 │   └── user.go
+
 ├── .env
+
 ├── .env.example
+
 ├── .gitignore
+
 ├── go.mod
+
 ├── go.sum
+
 ├── main.go
+
 └── schema.sql
 
 ## Project Overview
