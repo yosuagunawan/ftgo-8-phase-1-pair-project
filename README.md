@@ -3,6 +3,7 @@
 ## Project Structure
 
 ftgo-8-phase-1-pair-project/
+
 ├── cli/
 ├── config/
 │   └── config.go
